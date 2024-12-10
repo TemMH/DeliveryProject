@@ -1,0 +1,46 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel_app
+    volumes:
+      - .:/var/www/html
+    networks:
+      - laravel
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+    depends_on:
+      - db
+
+  webserver:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - .:/var/www/html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "8000:80"
+    networks:
+      - laravel
+    depends_on:
+      - app
+
+  db:
+    image: postgres:13
+    container_name: postgres
+    environment:
+      POSTGRES_USER: default
+      POSTGRES_PASSWORD: "endpoint=ep-mute-dream-a2vkwefh;QHqji86FATgc"
+      POSTGRES_DB: verceldb
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - laravel
+
+networks:
+  laravel:
+
+volumes:
+  db_data:
