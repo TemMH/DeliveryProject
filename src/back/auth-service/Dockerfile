@@ -32,7 +32,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY .env .env
 
 # Указываем порт, который будет использоваться
-EXPOSE 3000
+EXPOSE 3001
 
 # Устанавливаем команду запуска приложения
 CMD ["node", "dist/main"]
