@@ -1,0 +1,125 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id            Int              @id @default(autoincrement())
+  email         String           @unique
+  name          String?
+  surname       String?
+  patronymic    String?
+  date_of_birth DateTime
+  password      String
+  address       String
+  phone_number  String
+  createdAt     DateTime         @default(now())
+  wishlist      Wishlist[]
+  orders        Orders[]
+  reviews       Reviews[]
+  cart          carts[]
+  roleId        Int
+  role          Roles            @relation(fields: [roleId], references: [id])
+}
+
+model Products {
+  id            Int              @id @default(autoincrement())
+  name          String
+  description   String
+  price         String
+  image_path    String
+  created_at    DateTime         @default(now())
+  updated_at    DateTime
+  stock         Int
+  categories    product_has_categories[]
+  reviews       Reviews[]
+  orderItems    Order_items[]
+  cartItems     carts[]
+  wishlist      Wishlist[]    
+}
+
+model Reviews {
+  id            Int              @id @default(autoincrement())
+  rating        Int
+  text          String
+  created_at    DateTime         @default(now())
+  userId        Int
+  productId     Int
+  user          Users            @relation(fields: [userId], references: [id])
+  product       Products         @relation(fields: [productId], references: [id])
+}
+
+model product_has_categories {
+  id            Int              @id @default(autoincrement())
+  productId     Int
+  categoryId    Int
+  product       Products         @relation(fields: [productId], references: [id])
+  category      Categories        @relation(fields: [categoryId], references: [id])
+}
+
+model Categories {
+  id            Int              @id @default(autoincrement())
+  name          String           @unique
+  products      product_has_categories[]
+}
+
+model Wishlist {
+  id            Int              @id @default(autoincrement())
+  userId        Int
+  productId     Int
+  user          Users            @relation(fields: [userId], references: [id])
+  product       Products         @relation(fields: [productId], references: [id])
+}
+
+model Orders {
+  id            Int              @id @default(autoincrement())
+  total_price   Int
+  created_at    DateTime         @default(now())
+  delivered_at  DateTime?
+  status        Status           @default(PENDING)
+  userId        Int
+  user          Users            @relation(fields: [userId], references: [id])
+  items         Order_items[]
+}
+
+enum Status {
+  PENDING
+  COMPLETED
+  CANCELED
+}
+
+model Order_items {
+  id            Int              @id @default(autoincrement())
+  quantity      Int
+  orderId       Int
+  productId     Int
+  order         Orders           @relation(fields: [orderId], references: [id])
+  product       Products         @relation(fields: [productId], references: [id])
+}
+
+model carts {
+  id            Int              @id @default(autoincrement())
+  quantity      Int
+  price         Int
+  created_at    DateTime         @default(now())
+  userId        Int
+  productId     Int
+  user          Users            @relation(fields: [userId], references: [id])
+  product       Products         @relation(fields: [productId], references: [id])
+}
+
+model Roles {
+  id            Int              @id @default(autoincrement())
+  name          String           @unique
+  users         Users[]
+}
