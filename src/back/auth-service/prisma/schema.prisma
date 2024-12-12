@@ -1,11 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl"]
 }
 
 datasource db {
@@ -13,113 +8,188 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Users {
-  id            Int              @id @default(autoincrement())
-  email         String           @unique
+model users {
+  id            Int        @id @default(autoincrement())
+  email         String     @unique
   name          String?
   surname       String?
   patronymic    String?
-  date_of_birth DateTime
+  date_of_birth DateTime?
   password      String
-  address       String
-  phone_number  String
-  createdAt     DateTime         @default(now())
-  wishlist      Wishlist[]
-  orders        Orders[]
-  reviews       Reviews[]
+  address       String?
+  phone_number  String     @unique
+  createdAt     DateTime   @default(now())
+  roleId        Int        @default(1)
   cart          carts[]
-  roleId        Int
-  role          Roles            @relation(fields: [roleId], references: [id])
+  orders        orders[]
+  reviews       reviews[]
+  role          roles      @relation(fields: [roleId], references: [id])
+  wishlist      wishlist[]
 }
 
-model Products {
-  id            Int              @id @default(autoincrement())
-  name          String
-  description   String
-  price         String
-  image_path    String
-  created_at    DateTime         @default(now())
-  updated_at    DateTime
-  stock         Int
-  categories    product_has_categories[]
-  reviews       Reviews[]
-  orderItems    Order_items[]
-  cartItems     carts[]
-  wishlist      Wishlist[]    
+model products {
+  id          Int                      @id @default(autoincrement())
+  name        String
+  description String
+  price       String
+  image_path  String
+  created_at  DateTime                 @default(now())
+  updated_at  DateTime
+  stock       Int
+  cartItems   carts[]
+  orderItems  order_items[]
+  categories  product_has_categories[]
+  reviews     reviews[]
+  wishlist    wishlist[]
 }
 
-model Reviews {
-  id            Int              @id @default(autoincrement())
-  rating        Int
-  text          String
-  created_at    DateTime         @default(now())
-  userId        Int
-  productId     Int
-  user          Users            @relation(fields: [userId], references: [id])
-  product       Products         @relation(fields: [productId], references: [id])
+model reviews {
+  id         Int      @id @default(autoincrement())
+  rating     Int
+  text       String
+  created_at DateTime @default(now())
+  userId     Int
+  productId  Int
+  product    products @relation(fields: [productId], references: [id])
+  user       users    @relation(fields: [userId], references: [id])
 }
 
 model product_has_categories {
-  id            Int              @id @default(autoincrement())
-  productId     Int
-  categoryId    Int
-  product       Products         @relation(fields: [productId], references: [id])
-  category      Categories        @relation(fields: [categoryId], references: [id])
+  id         Int        @id @default(autoincrement())
+  productId  Int
+  categoryId Int
+  category   categories @relation(fields: [categoryId], references: [id])
+  product    products   @relation(fields: [productId], references: [id])
 }
 
-model Categories {
-  id            Int              @id @default(autoincrement())
-  name          String           @unique
-  products      product_has_categories[]
+model categories {
+  id       Int                      @id @default(autoincrement())
+  name     String                   @unique
+  products product_has_categories[]
 }
 
-model Wishlist {
-  id            Int              @id @default(autoincrement())
-  userId        Int
-  productId     Int
-  user          Users            @relation(fields: [userId], references: [id])
-  product       Products         @relation(fields: [productId], references: [id])
+model wishlist {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  productId Int
+  product   products @relation(fields: [productId], references: [id])
+  user      users    @relation(fields: [userId], references: [id])
 }
 
-model Orders {
-  id            Int              @id @default(autoincrement())
-  total_price   Int
-  created_at    DateTime         @default(now())
-  delivered_at  DateTime?
-  status        Status           @default(PENDING)
-  userId        Int
-  user          Users            @relation(fields: [userId], references: [id])
-  items         Order_items[]
+model orders {
+  id           Int           @id @default(autoincrement())
+  total_price  Int
+  created_at   DateTime      @default(now())
+  delivered_at DateTime?
+  status       status        @default(PENDING)
+  userId       Int
+  items        order_items[]
+  user         users         @relation(fields: [userId], references: [id])
 }
 
-enum Status {
+model order_items {
+  id        Int      @id @default(autoincrement())
+  quantity  Int
+  orderId   Int
+  productId Int
+  order     orders   @relation(fields: [orderId], references: [id])
+  product   products @relation(fields: [productId], references: [id])
+}
+
+model carts {
+  id         Int      @id @default(autoincrement())
+  quantity   Int
+  price      Int
+  created_at DateTime @default(now())
+  userId     Int
+  productId  Int
+  product    products @relation(fields: [productId], references: [id])
+  user       users    @relation(fields: [userId], references: [id])
+}
+
+model roles {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  users users[]
+}
+
+enum status {
   PENDING
   COMPLETED
   CANCELED
 }
 
-model Order_items {
-  id            Int              @id @default(autoincrement())
-  quantity      Int
-  orderId       Int
-  productId     Int
-  order         Orders           @relation(fields: [orderId], references: [id])
-  product       Products         @relation(fields: [productId], references: [id])
+
+
+
+
+
+
+
+
+
+
+model cache {
+  key        String @id @db.VarChar(255)
+  value      String
+  expiration Int
 }
 
-model carts {
-  id            Int              @id @default(autoincrement())
-  quantity      Int
-  price         Int
-  created_at    DateTime         @default(now())
-  userId        Int
-  productId     Int
-  user          Users            @relation(fields: [userId], references: [id])
-  product       Products         @relation(fields: [productId], references: [id])
+model cache_locks {
+  key        String @id @db.VarChar(255)
+  owner      String @db.VarChar(255)
+  expiration Int
 }
 
-model Roles {
-  id            Int              @id @default(autoincrement())
-  name          String           @unique
-  users         Users[]
+model failed_jobs {
+  id         BigInt   @id @default(autoincrement())
+  uuid       String   @unique(map: "failed_jobs_uuid_unique") @db.VarChar(255)
+  connection String
+  queue      String
+  payload    String
+  exception  String
+  failed_at  DateTime @default(now()) @db.Timestamp(0)
+}
+
+model job_batches {
+  id             String  @id @db.VarChar(255)
+  name           String  @db.VarChar(255)
+  total_jobs     Int
+  pending_jobs   Int
+  failed_jobs    Int
+  failed_job_ids String
+  options        String?
+  cancelled_at   Int?
+  created_at     Int
+  finished_at    Int?
+}
+
+model jobs {
+  id           BigInt @id @default(autoincrement())
+  queue        String @db.VarChar(255)
+  payload      String
+  attempts     Int    @db.SmallInt
+  reserved_at  Int?
+  available_at Int
+  created_at   Int
+
+  @@index([queue], map: "jobs_queue_index")
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement())
+  migration String @db.VarChar(255)
+  batch     Int
+}
+
+model sessions {
+  id            String  @id @db.VarChar(255)
+  user_id       BigInt?
+  ip_address    String? @db.VarChar(45)
+  user_agent    String?
+  payload       String
+  last_activity Int
+
+  @@index([last_activity], map: "sessions_last_activity_index")
+  @@index([user_id], map: "sessions_user_id_index")
 }
