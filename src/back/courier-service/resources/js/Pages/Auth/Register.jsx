@@ -8,7 +8,9 @@ import { Head, Link, useForm } from '@inertiajs/react';
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
-        email: '',
+        surname: '',
+        patronymic: '',
+        phone_number: '',
         password: '',
         password_confirmation: '',
     });
@@ -26,8 +28,8 @@ export default function Register() {
             <Head title="Register" />
 
             <form onSubmit={submit}>
-                <div>
-                    <InputLabel htmlFor="name" value="Name" />
+            <div>
+                    <InputLabel htmlFor="name" value="Имя" />
 
                     <TextInput
                         id="name"
@@ -44,16 +46,50 @@ export default function Register() {
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="email" value="Email" />
+                    <InputLabel htmlFor="surname" value="Фамилия" />
 
                     <TextInput
-                        id="email"
-                        type="email"
-                        name="email"
-                        value={data.email}
+                        id="surname"
+                        name="surname"
+                        value={data.surname}
                         className="mt-1 block w-full"
-                        autoComplete="username"
-                        onChange={(e) => setData('email', e.target.value)}
+                        autoComplete="surname"
+                        isFocused={true}
+                        onChange={(e) => setData('surname', e.target.value)}
+                        required
+                    />
+
+                    <InputError message={errors.name} className="mt-2" />
+                </div>
+
+                <div className="mt-4">
+                    <InputLabel htmlFor="patronymic" value="Отчество (При наличии)" />
+
+                    <TextInput
+                        id="patronymic"
+                        name="patronymic"
+                        value={data.patronymic}
+                        className="mt-1 block w-full"
+                        autoComplete="patronymic"
+                        isFocused={true}
+                        onChange={(e) => setData('patronymic', e.target.value)}
+                        required
+                    />
+
+                    <InputError message={errors.name} className="mt-2" />
+                </div>
+
+                <div className="mt-4">
+                    <InputLabel htmlFor="phoneNumber" value="Номер телефона" />
+
+                    <TextInput
+                        id="phone_number"
+                        type="number"
+                        name="phoneNumber"
+                        value={data.phone_number}
+                        className="mt-1 block w-full"
+                        autoComplete="phoneNumber"
+                        onChange={(e) => setData('phoneNumber', e.target.value)}
                         required
                     />
 
