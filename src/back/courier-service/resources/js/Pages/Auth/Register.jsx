@@ -1,26 +1,43 @@
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import GuestLayout from '@/Layouts/GuestLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import InputError from "@/Components/InputError";
+import InputLabel from "@/Components/InputLabel";
+import PrimaryButton from "@/Components/PrimaryButton";
+import TextInput from "@/Components/TextInput";
+import GuestLayout from "@/Layouts/GuestLayout";
+import { Head, Link, useForm } from "@inertiajs/react";
 
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm({
-        name: '',
-        surname: '',
-        patronymic: '',
-        phone_number: '',
-        password: '',
-        password_confirmation: '',
+        name: "",
+        email: "",
+        surname: "",
+        patronymic: "",
+        phone_number: "",
+        password: "",
+        password_confirmation: "",
     });
 
-    const submit = (e) => {
+    const submit = async (e) => {
         e.preventDefault();
 
-        post(route('register'), {
-            onFinish: () => reset('password', 'password_confirmation'),
-        });
+        try {
+            const response = await fetch("http://localhost:3000/users/signup", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Ошибка:", errorData);
+            } else {
+                const result = await response.json();
+                console.log("Успешная регистрация:", result);
+            }
+        } catch (error) {
+            console.error("Ошибка при отправке данных:", error);
+        }
     };
 
     return (
@@ -28,7 +45,7 @@ export default function Register() {
             <Head title="Register" />
 
             <form onSubmit={submit}>
-            <div>
+                <div>
                     <InputLabel htmlFor="name" value="Имя" />
 
                     <TextInput
@@ -38,11 +55,27 @@ export default function Register() {
                         className="mt-1 block w-full"
                         autoComplete="name"
                         isFocused={true}
-                        onChange={(e) => setData('name', e.target.value)}
+                        onChange={(e) => setData("name", e.target.value)}
                         required
                     />
 
                     <InputError message={errors.name} className="mt-2" />
+                </div>
+                <div>
+                    <InputLabel htmlFor="email" value="почта" />
+
+                    <TextInput
+                        id="email"
+                        name="email"
+                        value={data.email}
+                        className="mt-1 block w-full"
+                        autoComplete="email"
+                        isFocused={true}
+                        onChange={(e) => setData("email", e.target.value)}
+                        required
+                    />
+
+                    <InputError message={errors.email} className="mt-2" />
                 </div>
 
                 <div className="mt-4">
@@ -55,7 +88,7 @@ export default function Register() {
                         className="mt-1 block w-full"
                         autoComplete="surname"
                         isFocused={true}
-                        onChange={(e) => setData('surname', e.target.value)}
+                        onChange={(e) => setData("surname", e.target.value)}
                         required
                     />
 
@@ -63,7 +96,10 @@ export default function Register() {
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="patronymic" value="Отчество (При наличии)" />
+                    <InputLabel
+                        htmlFor="patronymic"
+                        value="Отчество (При наличии)"
+                    />
 
                     <TextInput
                         id="patronymic"
@@ -72,7 +108,7 @@ export default function Register() {
                         className="mt-1 block w-full"
                         autoComplete="patronymic"
                         isFocused={true}
-                        onChange={(e) => setData('patronymic', e.target.value)}
+                        onChange={(e) => setData("patronymic", e.target.value)}
                         required
                     />
 
@@ -89,7 +125,7 @@ export default function Register() {
                         value={data.phone_number}
                         className="mt-1 block w-full"
                         autoComplete="phoneNumber"
-                        onChange={(e) => setData('phoneNumber', e.target.value)}
+                        onChange={(e) => setData("phoneNumber", e.target.value)}
                         required
                     />
 
@@ -106,7 +142,7 @@ export default function Register() {
                         value={data.password}
                         className="mt-1 block w-full"
                         autoComplete="new-password"
-                        onChange={(e) => setData('password', e.target.value)}
+                        onChange={(e) => setData("password", e.target.value)}
                         required
                     />
 
@@ -127,7 +163,7 @@ export default function Register() {
                         className="mt-1 block w-full"
                         autoComplete="new-password"
                         onChange={(e) =>
-                            setData('password_confirmation', e.target.value)
+                            setData("password_confirmation", e.target.value)
                         }
                         required
                     />
@@ -140,7 +176,7 @@ export default function Register() {
 
                 <div className="mt-4 flex items-center justify-end">
                     <Link
-                        href={route('login')}
+                        href={route("login")}
                         className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                     >
                         Already registered?

@@ -39,6 +39,7 @@ export class UsersService {
     const token = await this.authService.generateToken(user);
     return { user: user, ...token };
   }
+
   async signIn(dto: SignInDto): Promise<{ user: users; token: string }> {
     const currentUser = await this.prisma.users.findUnique({
       where: {
