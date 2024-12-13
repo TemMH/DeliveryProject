@@ -11,24 +11,44 @@ export default function Register() {
         surname: '',
         patronymic: '',
         phone_number: '',
+        email: '',
         password: '',
-        password_confirmation: '',
+        // password_confirmation: '',
     });
 
     const submit = (e) => {
         e.preventDefault();
-
-        post(route('register'), {
-            onFinish: () => reset('password', 'password_confirmation'),
+    
+        // Отправка данных на бэкенд NestJS
+        fetch('http://localhost:3000/users/signUp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`${response.status} ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then((result) => {
+            console.log('Успех:', result);
+        })
+        .catch((error) => {
+            console.error('Ошибка:', error.message);
+            reset('password');
         });
     };
+    
 
     return (
         <GuestLayout>
         <Head title="Register" />
 
         <form onSubmit={submit}>
-            <div>
+        <div>
                 <InputLabel htmlFor="name" value="Имя" />
 
                 <TextInput
@@ -43,6 +63,23 @@ export default function Register() {
                 />
 
                 <InputError message={errors.name} className="mt-2" />
+            </div>
+
+            <div>
+                <InputLabel htmlFor="email" value="email" />
+
+                <TextInput
+                    id="email"
+                    name="email"
+                    value={data.email}
+                    className="mt-1 block w-full"
+                    autoComplete="email"
+                    isFocused={true}
+                    onChange={(e) => setData('email', e.target.value)}
+                    required
+                />
+
+                <InputError message={errors.email} className="mt-2" />
             </div>
 
             <div className="mt-4">
@@ -110,7 +147,7 @@ export default function Register() {
                 <InputError message={errors.password} className="mt-2" />
             </div>
 
-            <div className="mt-4">
+            {/* <div className="mt-4">
                 <InputLabel
                     htmlFor="password_confirmation"
                     value="Подтвердите пароль"
@@ -133,7 +170,7 @@ export default function Register() {
                     message={errors.password_confirmation}
                     className="mt-2"
                 />
-            </div>
+            </div> */}
 
             <div className="mt-4 flex items-center justify-end">
                 <Link

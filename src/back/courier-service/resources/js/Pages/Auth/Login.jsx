@@ -15,9 +15,27 @@ export default function Login({ status, canResetPassword }) {
 
     const submit = (e) => {
         e.preventDefault();
-
-        post(route('login'), {
-            onFinish: () => reset('password'),
+    
+        fetch('http://localhost:3000/users/signIn', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`${response.status} ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then((result) => {
+            console.log('Успех:', result);
+            // navigate('/dashboard');
+        })
+        .catch((error) => {
+            console.error('Ошибка:', error.message);
+            reset('password');
         });
     };
 
