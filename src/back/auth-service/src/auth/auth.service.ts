@@ -14,9 +14,9 @@ export class AuthService {
     };
     return { token: this.jwtService.sign(payload) };
   }
-  async verifyToken(token: string): Promise<DecodedToken> {
+  async verifyToken(token: { token: string }): Promise<DecodedToken> {
     try {
-      return this.jwtService.verify<DecodedToken>(token);
+      return this.jwtService.verify<DecodedToken>(token.token);
     } catch (e) {
       throw new UnauthorizedException('invalid or expired token');
     }
