@@ -16,7 +16,6 @@ model users {
   patronymic    String?
   date_of_birth DateTime?
   password      String
-  address       String?
   phone_number  String     @unique
   createdAt     DateTime   @default(now())
   roleId        Int        @default(1)
@@ -25,6 +24,18 @@ model users {
   reviews       reviews[]
   role          roles      @relation(fields: [roleId], references: [id])
   wishlist      wishlist[]
+  address       address[]
+}
+
+model address {
+  id Int @id @default(autoincrement())
+  address String
+  apartment_or_office  String
+  floor  Int
+  entrance Int
+  intercom Int
+  userId Int
+  user users @relation(fields: [userId], references: [id])
 }
 
 model products {
@@ -41,6 +52,7 @@ model products {
   categories  product_has_categories[]
   reviews     reviews[]
   wishlist    wishlist[]
+  product_has_recipies product_has_recipies[]
 }
 
 model reviews {
@@ -65,7 +77,17 @@ model product_has_categories {
 model categories {
   id       Int                      @id @default(autoincrement())
   name     String                   @unique
+  catalog_section_id Int
   products product_has_categories[]
+  catalog_section catalog_section @relation(fields: [catalog_section_id], references: [id]) 
+}
+
+model catalog_section{
+  id       Int                      @id @default(autoincrement())
+  name String
+  image_path String
+  created_at DateTime @default(now())
+  categories categories[]
 }
 
 model wishlist {
@@ -119,12 +141,32 @@ enum status {
   CANCELED
 }
 
+model recipies {
+  id           Int           @id @default(autoincrement())
+  name         String
+  cooking_time Int
+  image_path   String
+  created_at   DateTime @default(now())
+  product_has_recipies product_has_recipies[]
+  steps  steps_cook_recipies[]
+}
 
+model product_has_recipies {
+  id           Int           @id @default(autoincrement())
+  productId   Int
+  recipiesId Int
+  products products @relation(fields: [productId], references: [id])
+  recipies recipies @relation(fields: [recipiesId], references: [id])
+}
 
-
-
-
-
+model steps_cook_recipies {
+  id          Int           @id @default(autoincrement())
+  step_number Int
+  recipiesId  Int
+  recipies    recipies @relation(fields: [recipiesId], references: [id])
+  image_path  String
+  description String
+}
 
 
 
